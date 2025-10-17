@@ -4,141 +4,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chatbot</title>
+    <title>AI Chatbot</title>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
-        #chat-container { width: 80%; max-width: 800px; margin: 20px auto; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        #chat-log { padding: 10px; height: 300px; overflow-y: scroll; border-bottom: 1px solid #ddd; }
-        .message { padding: 8px 12px; margin-bottom: 5px; border-radius: 5px; clear: both; }
-        .user-message { background-color: #e2f0ff; float: right; }
-        .bot-message { background-color: #f9f9f9; float: left; }
+        #chat-container { width: 500px; margin: 20px auto; border: 1px solid #ccc; }
+        #chat-messages { padding: 10px; height: 300px; overflow-y: scroll; }
+        .message { margin-bottom: 5px; padding: 5px; border-radius: 5px; }
+        .user-message { background-color: #DCF8C6; text-align: right; }
+        .bot-message { background-color: #ECE5DD; text-align: left; }
         #input-area { display: flex; padding: 10px; }
-        #user-input { flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
-        #send-btn { padding: 8px 12px; border: none; background-color: #007bff; color: white; border-radius: 5px; cursor: pointer; }
-        #send-btn:hover { background-color: #0056b3; }
-        #clear-btn { padding: 8px 12px; border: none; background-color: #dc3545; color: white; border-radius: 5px; cursor: pointer; margin-left: 10px;}
-        #clear-btn:hover { background-color: #c82333; }
-        #message-count { text-align: center; padding: 5px; font-size: small; color: #777; }
-        #char-count { text-align: right; padding: 5px; font-size: small; color: #777; }
-        .timestamp { font-size: x-small; color: #888; margin-left: 5px; }
+        #user-input { flex-grow: 1; padding: 5px; }
+        #send-btn { padding: 5px 10px; }
+        #typing-indicator { display: none; }
     </style>
 </head>
 <body>
     <div id="chat-container">
-        <div id="chat-log"></div>
-        <div id="message-count">0 messages</div>
+        <div id="chat-messages"></div>
+        <div id="typing-indicator">Typing...</div>
         <div id="input-area">
-            <input type="text" id="user-input" placeholder="Type your message..." maxlength="500">
+            <input type="text" id="user-input" placeholder="Type your message...">
             <button id="send-btn">Send</button>
-            <button id="clear-btn">Clear Chat</button>
         </div>
-        <div id="char-count">500 characters remaining</div>
     </div>
+
     <script>
-        const chatLog = document.getElementById('chat-log');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const messageCountDisplay = document.getElementById('message-count');
-        const charCountDisplay = document.getElementById('char-count');
-        let messageCount = 0;
+        const apiKey = "YOUR_API_KEY"; // Replace with your actual API key
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
+        const chatMessages = document.getElementById("chat-messages");
+        const typingIndicator = document.getElementById("typing-indicator");
 
-        function getTimeStamp() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
+        sendBtn.addEventListener("click", sendMessage);
+        userInput.addEventListener("keydown", (event) => { if (event.key === "Enter") sendMessage(); });
 
-        function addMessage(message, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', `${sender}-message`);
-            messageDiv.innerHTML = `${message}<span class="timestamp">${getTimeStamp()}</span>`;
-            chatLog.appendChild(messageDiv);
-            chatLog.scrollTop = chatLog.scrollHeight;
-            messageCount++;
-            messageCountDisplay.textContent = `${messageCount} messages`;
-        }
-
-        function getBotResponse(message) {
-            return fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer sk-YOUR_API_KEY' // Replace with your actual API key
-                },
-                body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
-                    messages: [{ role: "user", content: message }],
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const botResponse = data.choices[0].message.content;
-                addMessage(botResponse, 'bot');
-                saveChatHistory();
-            })
-            .catch(error => {
-                console.error('Error fetching bot response:', error);
-                addMessage("Sorry, I'm having trouble connecting to the server.", 'bot');
-                saveChatHistory();
-            });
-        }
-
-        function sendMessage() {
+        async function sendMessage() {
             const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, 'user');
-                userInput.value = '';
-                charCountDisplay.textContent = `500 characters remaining`;
-                getBotResponse(message);
-                saveChatHistory();
+            if (!message) return;
+
+            addUserMessage(message);
+            userInput.value = "";
+            typingIndicator.style.display = "block";
+
+            try {
+                const response = await fetchGeminiAPI(message);
+                addBotMessage(response);
+            } catch (error) {
+                addBotMessage("Error: " + error.message);
+            } finally {
+                typingIndicator.style.display = "none";
             }
         }
 
-        function clearChat() {
-            chatLog.innerHTML = '';
-            messageCount = 0;
-            messageCountDisplay.textContent = '0 messages';
-            localStorage.removeItem('chatHistory');
+        function addUserMessage(message) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", "user-message");
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function saveChatHistory() {
-            localStorage.setItem('chatHistory', chatLog.innerHTML);
-        }
+        async function fetchGeminiAPI(message) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+            const data = {
+                contents: [{
+                    parts: [{ text: message }]
+                }]
+            };
 
-        function restoreChatHistory() {
-            const savedChat = localStorage.getItem('chatHistory');
-            if (savedChat) {
-                chatLog.innerHTML = savedChat;
-                messageCount = chatLog.querySelectorAll('.message').length;
-                messageCountDisplay.textContent = `${messageCount} messages`;
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            const result = await response.json();
+            return result.candidates[0].content.parts[0].text;
         }
 
-        sendBtn.addEventListener('click', sendMessage);
-        userInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        clearBtn.addEventListener('click', clearChat);
-
-        userInput.addEventListener('input', () => {
-            const remainingChars = 500 - userInput.value.length;
-            charCountDisplay.textContent = `${remainingChars} characters remaining`;
-        });
-
-        restoreChatHistory();
+        function addBotMessage(message) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", "bot-message");
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     </script>
     <footer>
-        <p>&copy; 2024 Simple Chatbot. MIT License.</p>
+        <p>&copy; 2024. MIT License</p>
     </footer>
 </body>
 </html>
