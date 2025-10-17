@@ -1,46 +1,26 @@
-```md
-# AI Chatbot with Google Gemini API
+# Simple Chatbot
 
 ## Summary
 
-This project is a simple AI chatbot interface built using HTML, CSS, and JavaScript. It leverages the Google Gemini API to generate responses to user messages. The chat UI includes a message input field, a send button, and a conversation display area. A typing indicator is displayed while waiting for the API response.
+This is a simple chatbot web application that allows users to exchange messages with a bot powered by the OpenAI API. The application features a clean user interface, message persistence using local storage, and character count for input.
 
 ## Features
 
--   **User Interface:** A clean and intuitive chat interface.
--   **Google Gemini API Integration:** Uses the Gemini API to generate chatbot responses.
--   **Conversation History:** Displays the conversation history in the chat area.
--   **Typing Indicator:** Shows a typing indicator while waiting for the API response.
--   **Error Handling:** Handles potential errors during API calls.
+-   **Chat Interface:** A user-friendly interface for sending and receiving messages.
+-   **OpenAI Integration:** Uses the OpenAI API to generate bot responses. (API key required)
+-   **Message Persistence:** Saves the conversation history in the browser's local storage, allowing users to resume their conversation even after refreshing the page.
+-   **Clear Chat:** A button to clear the entire chat history.
+-   **Message Counter:** Displays the total number of messages in the conversation.
+-   **Timestamps:** Each message includes a timestamp indicating when it was sent.
+-   **Character Counter:** Shows the remaining characters allowed in the input field (maximum 500).
 
 ## Usage
 
-1.  **Obtain a Google Gemini API Key:** Get an API key from the Google Cloud Console.
-2.  **Replace Placeholder API Key:** In the `index.html` file, replace `"YOUR_API_KEY"` with your actual API key.
-3.  **Open in Browser:** Open the `index.html` file in a web browser.
-4.  **Start Chatting:** Type your message in the input field and press the "Send" button or the Enter key.
+1.  **API Key:** Replace `"sk-YOUR_API_KEY"` in the JavaScript code with your actual OpenAI API key.
+2.  **Open the HTML file:** Open the `index.html` file in your web browser.
+3.  **Start Chatting:** Type your message in the input field and press "Send" or hit the Enter key. The bot's response will appear in the chat log.
+4.  **Clear Chat:** Click the "Clear Chat" button to remove all messages and clear the local storage.
 
 ## License
 
-MIT License
-
-Copyright (c) 2024
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+This project is licensed under the MIT License.
