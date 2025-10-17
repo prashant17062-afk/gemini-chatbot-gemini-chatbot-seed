@@ -1,809 +1,145 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot for Academic Grading</title>
+    <title>Simple Chatbot</title>
     <style>
-        /*
-        MIT License
-
-        Copyright (c) 2023 [Your Name/Organization Name - e.g., AI Web Dev]
-
-        Permission is hereby granted, free of charge, to any person obtaining a copy
-        of this software and associated documentation files (the "Software"), to deal
-        in the Software without restriction, including without limitation the rights
-        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-        copies of the Software, and to permit persons to whom the Software is
-        furnished to do so, subject to the following conditions:
-
-        The above copyright notice and this permission notice shall be included in all
-        copies or substantial portions of the Software.
-
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-        SOFTWARE.
-        */
-        :root {
-            --primary-color: #4CAF50; /* Green */
-            --primary-dark: #388E3C;
-            --secondary-color: #f0f0f0; /* Light grey */
-            --text-color: #333;
-            --text-light: #666;
-            --border-color: #ddd;
-            --bg-light: #fff;
-            --bg-dark: #eee;
-            --button-blue: #2196F3;
-            --button-blue-dark: #1976D2;
-            --button-red: #f44336;
-            --button-red-dark: #d32f2f;
-            --button-grey: #607D8B;
-            --button-grey-dark: #455A64;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: var(--bg-dark);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .container {
-            display: flex;
-            flex-grow: 1;
-            max-width: 1200px;
-            margin: 1rem auto;
-            background-color: var(--bg-light);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            overflow: hidden;
-            flex-direction: column; /* Default to column for small screens */
-        }
-
-        #chat-main {
-            display: flex;
-            flex-grow: 1;
-            flex-direction: row; /* Default to row for larger screens */
-            overflow: hidden;
-        }
-
-        #chat-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border-color);
-            min-width: 0; /* Allows flex item to shrink */
-        }
-
-        #chat-history {
-            flex-grow: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background-color: var(--secondary-color);
-            scroll-behavior: smooth;
-        }
-
-        .message-container {
-            display: flex;
-            flex-direction: column;
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            line-height: 1.4;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .message-container.user {
-            align-self: flex-end;
-            background-color: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-container.bot {
-            align-self: flex-start;
-            background-color: var(--bg-light);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-bottom-left-radius: 4px;
-        }
-
-        .message-content {
-            margin-bottom: 5px;
-        }
-
-        .message-timestamp {
-            font-size: 0.75em;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        .message-container.user .message-timestamp {
-            color: rgba(255, 255, 255, 0.7);
-            align-self: flex-end;
-        }
-        .message-container.bot .message-timestamp {
-            color: var(--text-light);
-            align-self: flex-start;
-        }
-
-        .copy-btn {
-            background: none;
-            border: none;
-            color: var(--primary-dark);
-            cursor: pointer;
-            font-size: 0.8em;
-            margin-top: 5px;
-            padding: 0;
-            text-align: right;
-            align-self: flex-end;
-            transition: color 0.2s ease;
-        }
-        .copy-btn:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
-        }
-
-
-        #input-area {
-            display: flex;
-            flex-wrap: wrap; /* Allows char-count to move */
-            padding: 1rem;
-            background-color: var(--bg-light);
-            border-top: 1px solid var(--border-color);
-            align-items: flex-end;
-            gap: 10px;
-        }
-
-        #user-input {
-            flex-grow: 1;
-            padding: 10px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 1em;
-            resize: none;
-            max-height: 150px;
-            overflow-y: auto;
-            min-height: 40px; /* Ensure it's not too small */
-        }
-
-        #send-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s ease;
-            height: fit-content;
-        }
-
-        #send-btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        #char-count {
-            font-size: 0.8em;
-            color: var(--text-light);
-            text-align: right;
-            width: 100%; /* Take full width below input/send */
-            margin-top: 5px;
-        }
-
-        .input-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        #control-panel {
-            width: 280px;
-            padding: 1rem;
-            background-color: var(--bg-light);
-            border-left: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            position: relative; /* For sticky elements */
-        }
-
-        .panel-group {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            background-color: var(--secondary-color);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .panel-group h3 {
-            margin-top: 0;
-            color: var(--primary-dark);
-            font-size: 1.1em;
-            margin-bottom: 0.8rem;
-        }
-
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .button-group button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95em;
-            transition: background-color 0.2s ease;
-        }
-        .button-group button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        #clear-btn { background-color: var(--button-red); }
-        #clear-btn:hover { background-color: var(--button-red-dark); }
-
-        #export-btn { background-color: var(--button-blue); }
-        #export-btn:hover { background-color: var(--button-blue-dark); }
-
-        #settings-toggle-btn {
-            background-color: var(--button-grey);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s ease;
-            margin-bottom: 1rem;
-        }
-        #settings-toggle-btn:hover {
-            background-color: var(--button-grey-dark);
-        }
-
-        #settings-panel {
-            background-color: var(--bg-light);
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        #settings-panel.expanded {
-            max-height: 500px; /* Adjust based on content height */
-            opacity: 1;
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem;
-        }
-
-        .settings-item {
-            margin-bottom: 1rem;
-        }
-        .settings-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .settings-item label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .settings-item input[type="text"],
-        .settings-item input[type="password"],
-        .settings-item input[type="number"] {
-            width: calc(100% - 22px); /* Account for padding and border */
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 0.95em;
-            background-color: var(--bg-light);
-            color: var(--text-color);
-        }
-        .settings-item input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-        }
-
-        .settings-item input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            background: var(--primary-color);
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-
-        .settings-item input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary-dark);
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .settings-item input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary-dark);
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .settings-item input[type="range"]:hover {
-            opacity: 1;
-        }
-
-        .settings-item .range-value {
-            font-size: 0.9em;
-            color: var(--text-light);
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .checkbox-container input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
-        }
-
-        footer {
-            text-align: center;
-            padding: 1rem;
-            margin-top: auto; /* Push to bottom */
-            font-size: 0.8em;
-            color: var(--text-light);
-            background-color: var(--bg-dark);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                margin: 0;
-                border-radius: 0;
-                box-shadow: none;
-            }
-            #chat-main {
-                flex-direction: column;
-            }
-            #chat-area {
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-            #control-panel {
-                width: 100%;
-                border-left: none;
-                padding: 1rem 0.5rem;
-            }
-            #input-area {
-                flex-direction: column; /* Stack input and button vertically */
-                align-items: stretch;
-            }
-            #user-input {
-                width: auto; /* Reset width for flex item */
-            }
-            #send-btn {
-                width: 100%;
-                margin-top: 0.5rem;
-            }
-            .input-controls {
-                width: 100%;
-                align-items: stretch;
-                gap: 0; /* Remove gap if button takes full width */
-            }
-            #char-count {
-                margin-top: 10px; /* Space above send button */
-                order: 1; /* Place before send button */
-            }
-            #settings-panel.expanded {
-                max-height: 800px; /* Adjust for smaller screens */
-            }
-        }
+        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
+        #chat-container { width: 80%; max-width: 800px; margin: 20px auto; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        #chat-log { padding: 10px; height: 300px; overflow-y: scroll; border-bottom: 1px solid #ddd; }
+        .message { padding: 8px 12px; margin-bottom: 5px; border-radius: 5px; clear: both; }
+        .user-message { background-color: #e2f0ff; float: right; }
+        .bot-message { background-color: #f9f9f9; float: left; }
+        #input-area { display: flex; padding: 10px; }
+        #user-input { flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
+        #send-btn { padding: 8px 12px; border: none; background-color: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+        #send-btn:hover { background-color: #0056b3; }
+        #clear-btn { padding: 8px 12px; border: none; background-color: #dc3545; color: white; border-radius: 5px; cursor: pointer; margin-left: 10px;}
+        #clear-btn:hover { background-color: #c82333; }
+        #message-count { text-align: center; padding: 5px; font-size: small; color: #777; }
+        #char-count { text-align: right; padding: 5px; font-size: small; color: #777; }
+        .timestamp { font-size: x-small; color: #888; margin-left: 5px; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>AI Chatbot for Academic Grading</h1>
-        <p>Your intelligent assistant for insightful grading feedback.</p>
-    </header>
-
-    <div class="container">
-        <div id="chat-main">
-            <div id="chat-area">
-                <div id="chat-history">
-                    <!-- Chat messages will be dynamically inserted here -->
-                </div>
-                <div id="input-area">
-                    <textarea id="user-input" placeholder="Type your message here..." rows="1" maxlength="2000"></textarea>
-                    <div class="input-controls">
-                        <span id="char-count">0 / 2000 characters</span>
-                        <button id="send-btn">Send</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="control-panel">
-                <button id="settings-toggle-btn">Toggle Settings</button>
-
-                <div id="settings-panel">
-                    <div class="settings-item">
-                        <label for="api-key-input">OpenAI API Key:</label>
-                        <input type="password" id="api-key-input" placeholder="Enter your OpenAI API Key">
-                        <div class="checkbox-container">
-                            <input type="checkbox" id="show-api-key">
-                            <label for="show-api-key">Show API Key</label>
-                        </div>
-                    </div>
-                    <div class="settings-item">
-                        <label for="temperature-slider">Temperature: <span id="temperature-value">0.7</span></label>
-                        <input type="range" id="temperature-slider" min="0" max="1" step="0.1" value="0.7">
-                        <div class="range-value" id="temperature-display"></div>
-                    </div>
-                    <div class="settings-item">
-                        <label for="max-tokens">Max Tokens:</label>
-                        <input type="number" id="max-tokens" min="1" max="4096" value="1000">
-                    </div>
-                </div>
-
-                <div class="panel-group">
-                    <h3>Chat Management</h3>
-                    <div class="button-group">
-                        <button id="clear-btn">Clear Chat</button>
-                        <button id="export-btn">Export Chat</button>
-                    </div>
-                </div>
-
-                <div class="panel-group">
-                    <h3>Chat Statistics</h3>
-                    <p id="message-count">Messages: 0</p>
-                </div>
-            </div>
+    <div id="chat-container">
+        <div id="chat-log"></div>
+        <div id="message-count">0 messages</div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Type your message..." maxlength="500">
+            <button id="send-btn">Send</button>
+            <button id="clear-btn">Clear Chat</button>
         </div>
+        <div id="char-count">500 characters remaining</div>
     </div>
-
-    <footer>
-        <p>&copy; 2023 AI Chatbot for Academic Grading. All rights reserved.</p>
-        <p>
-            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>
-        </p>
-    </footer>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
-            const chatHistory = document.getElementById('chat-history');
-            const userInput = document.getElementById('user-input');
-            const sendBtn = document.getElementById('send-btn');
-            const clearBtn = document.getElementById('clear-btn');
-            const exportBtn = document.getElementById('export-btn');
-            const messageCountDisplay = document.getElementById('message-count');
-            const charCountDisplay = document.getElementById('char-count');
-            const settingsToggleBtn = document.getElementById('settings-toggle-btn');
-            const settingsPanel = document.getElementById('settings-panel');
-            const apiKeyInput = document.getElementById('api-key-input');
-            const showApiKeyCheckbox = document.getElementById('show-api-key');
-            const temperatureSlider = document.getElementById('temperature-slider');
-            const temperatureValueDisplay = document.getElementById('temperature-value');
-            const maxTokensInput = document.getElementById('max-tokens');
+        const chatLog = document.getElementById('chat-log');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const messageCountDisplay = document.getElementById('message-count');
+        const charCountDisplay = document.getElementById('char-count');
+        let messageCount = 0;
 
-            // --- State Variables ---
-            // Stores the conversation history for display and potential API calls.
-            // Each message includes role (user/assistant), content, and timestamp.
-            let conversationHistory = [];
-            const MAX_CHARACTERS = 2000; // Maximum input characters for the user message.
+        function getTimeStamp() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
 
-            // --- Chat Settings (Persisted in localStorage) ---
-            // Default settings for the chatbot's behavior.
-            let chatSettings = {
-                apiKey: '',
-                temperature: 0.7, // Controls creativity (0-1)
-                maxTokens: 1000,  // Max tokens for the AI's response
-            };
+        function addMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+            messageDiv.innerHTML = `${message}<span class="timestamp">${getTimeStamp()}</span>`;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            messageCount++;
+            messageCountDisplay.textContent = `${messageCount} messages`;
+        }
 
-            /**
-             * Loads chat settings from localStorage and applies them to the UI.
-             * Initializes with default settings if no stored settings are found.
-             */
-            const loadSettings = () => {
-                const storedSettings = localStorage.getItem('chatSettings');
-                if (storedSettings) {
-                    try {
-                        const parsedSettings = JSON.parse(storedSettings);
-                        // Merge stored settings with defaults, preferring stored values.
-                        chatSettings = { ...chatSettings, ...parsedSettings };
-                    } catch (e) {
-                        console.error("Error parsing chatSettings from localStorage:", e);
-                    }
+        function getBotResponse(message) {
+            return fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer sk-YOUR_API_KEY' // Replace with your actual API key
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: message }],
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                // Apply loaded settings to UI elements
-                apiKeyInput.value = chatSettings.apiKey;
-                temperatureSlider.value = chatSettings.temperature;
-                temperatureValueDisplay.textContent = chatSettings.temperature;
-                maxTokensInput.value = chatSettings.maxTokens;
-            };
-
-            /**
-             * Saves the current chat settings to localStorage.
-             */
-            const saveSettings = () => {
-                localStorage.setItem('chatSettings', JSON.stringify(chatSettings));
-            };
-
-            // --- Utility Functions ---
-            /**
-             * Generates a formatted timestamp (HH:MM AM/PM).
-             * @returns {string} The formatted time string.
-             */
-            const getCurrentTimestamp = () => {
-                const now = new Date();
-                return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-            };
-
-            /**
-             * Updates the message counter and character counter displays.
-             */
-            const updateCounters = () => {
-                messageCountDisplay.textContent = `Messages: ${conversationHistory.length}`;
-                charCountDisplay.textContent = `${userInput.value.length} / ${MAX_CHARACTERS} characters`;
-            };
-
-            /**
-             * Appends a new message to the chat history display.
-             * Includes sender, message content, timestamp, and a copy button for bot messages.
-             * @param {string} sender - 'user' or 'bot'.
-             * @param {string} message - The content of the message.
-             * @param {string} timestamp - The formatted timestamp for the message.
-             */
-            const appendMessage = (sender, message, timestamp) => {
-                const messageContainer = document.createElement('div');
-                messageContainer.classList.add('message-container', sender);
-
-                const messageContent = document.createElement('div');
-                messageContent.classList.add('message-content');
-                messageContent.textContent = message;
-
-                const messageTimestamp = document.createElement('span');
-                messageTimestamp.classList.add('message-timestamp');
-                messageTimestamp.textContent = timestamp;
-
-                messageContainer.appendChild(messageContent);
-                messageContainer.appendChild(messageTimestamp);
-
-                if (sender === 'bot') {
-                    const copyButton = document.createElement('button');
-                    copyButton.classList.add('copy-btn');
-                    copyButton.textContent = 'Copy';
-                    copyButton.addEventListener('click', () => {
-                        // Use navigator.clipboard API to copy text
-                        navigator.clipboard.writeText(message).then(() => {
-                            copyButton.textContent = 'Copied!';
-                            setTimeout(() => copyButton.textContent = 'Copy', 2000); // Reset button text after 2 seconds
-                        }).catch(err => {
-                            console.error('Failed to copy text: ', err);
-                            alert('Failed to copy text.');
-                        });
-                    });
-                    messageContainer.appendChild(copyButton);
-                }
-
-                chatHistory.appendChild(messageContainer);
-                chatHistory.scrollTop = chatHistory.scrollHeight; // Automatically scroll to the latest message
-                updateCounters(); // Update counters after adding a message
-            };
-
-            // --- Chat Logic ---
-            /**
-             * Handles sending a user message: appends it to history, clears input,
-             * and then calls `getBotResponse` for an AI reply.
-             */
-            const sendMessage = async () => {
-                const message = userInput.value.trim();
-                if (message === '') return; // Do not send empty messages
-
-                const timestamp = getCurrentTimestamp();
-                appendMessage('user', message, timestamp);
-                conversationHistory.push({ role: 'user', content: message, timestamp: timestamp });
-                userInput.value = ''; // Clear input field
-                userInput.style.height = 'auto'; // Reset textarea height
-                updateCounters();
-
-                // Simulate bot response for demo purposes.
-                // In a real application, this would be an actual API call to an AI service.
-                const botResponse = await getBotResponse(message);
-                const botTimestamp = getCurrentTimestamp();
-                appendMessage('bot', botResponse, botTimestamp);
-                conversationHistory.push({ role: 'assistant', content: botResponse, timestamp: botTimestamp });
-                updateCounters();
-            };
-
-            /**
-             * Simulates fetching a bot response.
-             * In a production environment, this function would make a `fetch` call to an AI API
-             * (e.g., OpenAI's Chat Completions API) using the stored API key and settings.
-             * @param {string} userMessage - The user's latest message.
-             * @returns {Promise<string>} A promise that resolves to the bot's response.
-             */
-            const getBotResponse = async (userMessage) => {
-                const apiKey = chatSettings.apiKey;
-                const temperature = chatSettings.temperature;
-                const maxTokens = chatSettings.maxTokens;
-
-                if (!apiKey) {
-                    return "Please set your OpenAI API Key in the settings panel to enable AI responses. This is a demo response.";
-                }
-
-                // Placeholder for actual API call to an AI service like OpenAI
-                console.log("Simulating API call with settings:", { temperature, maxTokens });
-                // For a real API call, you would send the conversation history for context:
-                // const apiMessages = conversationHistory.map(msg => ({role: msg.role, content: msg.content}));
-
-                try {
-                    /*
-                    // Example of how a real OpenAI API call might look:
-                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: "gpt-3.5-turbo", // or "gpt-4"
-                            messages: apiMessages, // Send relevant history
-                            temperature: temperature,
-                            max_tokens: maxTokens
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error.message || `API error: ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-                    return data.choices[0].message.content;
-                    */
-
-                    // Mock response for this demo, simulating AI thinking time
-                    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 500)); // Simulate network delay
-
-                    if (userMessage.toLowerCase().includes('hello') || userMessage.toLowerCase().includes('hi')) {
-                        return "Hello there! I'm here to assist with academic grading. How may I help you today?";
-                    } else if (userMessage.toLowerCase().includes('feedback')) {
-                        return `To give effective feedback, I need specific details about the assignment, its objectives, and the student's submission. With a creativity level (temperature) of ${temperature} and a maximum response length of ${maxTokens} tokens, I can generate a tailored response.`;
-                    } else if (userMessage.toLowerCase().includes('rubric')) {
-                        return "Rubrics are key for fair and consistent grading. Please share the rubric criteria, and I can help evaluate student work against them.";
-                    } else if (userMessage.toLowerCase().includes('grade')) {
-                        return "I can help analyze assignments to suggest grading points or identify areas for improvement. What kind of assignment are you looking at?";
-                    } else {
-                        return `I am an AI assistant designed to help with academic grading. Please tell me more about the task or query you have. (Current settings: Temperature: ${temperature}, Max Tokens: ${maxTokens})`;
-                    }
-
-                } catch (error) {
-                    console.error("Error communicating with AI:", error);
-                    return `Error: ${error.message}. Please check your API key and network connection.`;
-                }
-            };
-
-            // --- Event Listeners ---
-            sendBtn.addEventListener('click', sendMessage);
-
-            userInput.addEventListener('keypress', (e) => {
-                // Send message on Enter key press, unless Shift is also pressed (for new line)
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault(); // Prevent adding a new line in the textarea
-                    sendMessage();
-                }
+                return response.json();
+            })
+            .then(data => {
+                const botResponse = data.choices[0].message.content;
+                addMessage(botResponse, 'bot');
+                saveChatHistory();
+            })
+            .catch(error => {
+                console.error('Error fetching bot response:', error);
+                addMessage("Sorry, I'm having trouble connecting to the server.", 'bot');
+                saveChatHistory();
             });
+        }
 
-            userInput.addEventListener('input', () => {
-                // Auto-resize textarea height
-                userInput.style.height = 'auto';
-                userInput.style.height = userInput.scrollHeight + 'px';
-                updateCounters(); // Update character counter
-            });
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, 'user');
+                userInput.value = '';
+                charCountDisplay.textContent = `500 characters remaining`;
+                getBotResponse(message);
+                saveChatHistory();
+            }
+        }
 
-            clearBtn.addEventListener('click', () => {
-                // Confirm before clearing chat history
-                if (confirm('Are you sure you want to clear the entire chat history? This action cannot be undone.')) {
-                    chatHistory.innerHTML = ''; // Clear display
-                    conversationHistory = []; // Clear stored history
-                    updateCounters(); // Reset counters
-                }
-            });
+        function clearChat() {
+            chatLog.innerHTML = '';
+            messageCount = 0;
+            messageCountDisplay.textContent = '0 messages';
+            localStorage.removeItem('chatHistory');
+        }
 
-            exportBtn.addEventListener('click', () => {
-                if (conversationHistory.length === 0) {
-                    alert('No chat messages to export.');
-                    return;
-                }
-                const filename = `chat_history_${new Date().toISOString().slice(0, 10)}.json`; // e.g., chat_history_2023-10-27.json
-                const json = JSON.stringify(conversationHistory, null, 2); // Pretty-print JSON
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob); // Create a URL for the Blob
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename; // Set the download filename
-                document.body.appendChild(a);
-                a.click(); // Programmatically click the link to trigger download
-                document.body.removeChild(a); // Clean up the temporary link
-                URL.revokeObjectURL(url); // Release the object URL
-            });
+        function saveChatHistory() {
+            localStorage.setItem('chatHistory', chatLog.innerHTML);
+        }
 
-            settingsToggleBtn.addEventListener('click', () => {
-                settingsPanel.classList.toggle('expanded'); // Toggle visibility of settings panel
-            });
+        function restoreChatHistory() {
+            const savedChat = localStorage.getItem('chatHistory');
+            if (savedChat) {
+                chatLog.innerHTML = savedChat;
+                messageCount = chatLog.querySelectorAll('.message').length;
+                messageCountDisplay.textContent = `${messageCount} messages`;
+            }
+        }
 
-            apiKeyInput.addEventListener('input', () => {
-                chatSettings.apiKey = apiKeyInput.value;
-                saveSettings(); // Save API key to localStorage
-            });
-
-            showApiKeyCheckbox.addEventListener('change', () => {
-                // Toggle input type between 'password' and 'text'
-                apiKeyInput.type = showApiKeyCheckbox.checked ? 'text' : 'password';
-            });
-
-            temperatureSlider.addEventListener('input', () => {
-                chatSettings.temperature = parseFloat(temperatureSlider.value);
-                temperatureValueDisplay.textContent = temperatureSlider.value; // Update display
-                saveSettings(); // Save temperature to localStorage
-            });
-
-            maxTokensInput.addEventListener('input', () => {
-                chatSettings.maxTokens = parseInt(maxTokensInput.value, 10);
-                saveSettings(); // Save max tokens to localStorage
-            });
-
-
-            // --- Initialization ---
-            loadSettings(); // Load settings and update UI on page load
-            updateCounters(); // Initialize counters (char count will be 0/2000, message count 0)
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
         });
+
+        clearBtn.addEventListener('click', clearChat);
+
+        userInput.addEventListener('input', () => {
+            const remainingChars = 500 - userInput.value.length;
+            charCountDisplay.textContent = `${remainingChars} characters remaining`;
+        });
+
+        restoreChatHistory();
     </script>
+    <footer>
+        <p>&copy; 2024 Simple Chatbot. MIT License.</p>
+    </footer>
 </body>
 </html>
+```
