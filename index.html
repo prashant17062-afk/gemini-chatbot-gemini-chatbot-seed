@@ -3,355 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Grading Chatbot</title>
+    <title>Gemini Chatbot for Academic Grading</title>
+    <!-- Bootstrap CSS for styling and responsiveness -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            padding: 0;
         }
         .chat-container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            height: 80vh; /* Set a fixed height for the chat window */
-            min-height: 400px;
+            min-height: 85vh; /* Occupy a significant portion of the viewport */
         }
-        .chat-header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.2em;
-            border-bottom: 1px solid #388E3C;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chat-header span {
-            font-size: 0.8em;
-            background-color: rgba(0,0,0,0.2);
-            padding: 4px 8px;
-            border-radius: 12px;
-        }
-        .chat-messages {
+        #chat-messages {
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
-            border-bottom: 1px solid #eee;
+            max-height: calc(100vh - 280px); /* Adjust based on header/footer height */
             background-color: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
         }
         .message {
             margin-bottom: 15px;
             display: flex;
-            flex-direction: column;
-            max-width: 80%;
+            align-items: flex-end;
         }
-        .message .content {
-            padding: 10px 15px;
-            border-radius: 20px;
-            position: relative;
-            word-wrap: break-word;
-        }
-        .message .timestamp {
-            font-size: 0.7em;
-            color: #888;
-            margin-top: 5px;
-        }
-        .user-message {
-            align-self: flex-end;
-            text-align: right;
-        }
-        .user-message .content {
-            background-color: #dcf8c6;
-            color: #333;
-            border-bottom-right-radius: 5px; /* Flatten corner for sender */
-        }
-        .user-message .timestamp {
-            align-self: flex-end;
-            margin-right: 15px; /* Adjust as needed */
-        }
-        .bot-message {
-            align-self: flex-start;
-            text-align: left;
-        }
-        .bot-message .content {
-            background-color: #f1f0f0;
-            color: #333;
-            border-bottom-left-radius: 5px; /* Flatten corner for sender */
-        }
-        .bot-message .timestamp {
-            align-self: flex-start;
-            margin-left: 15px; /* Adjust as needed */
-        }
-        .chat-input-area {
-            padding: 15px 20px;
-            background-color: #f9f9f9;
-            border-top: 1px solid #eee;
-        }
-        .chat-input-area #user-input {
-            width: calc(100% - 70px);
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-            font-size: 1em;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-        .chat-input-area button {
-            padding: 10px 15px;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-            vertical-align: middle;
-        }
-        .chat-input-area button:hover {
-            background-color: #45a049;
-        }
-        .chat-input-area .char-counter {
-            font-size: 0.8em;
-            color: #888;
-            margin-top: 5px;
-            text-align: right;
-            padding-right: 10px;
-        }
-        .chat-actions {
-            padding: 10px 20px;
-            background-color: #f9f9f9;
-            border-top: 1px solid #eee;
-            display: flex;
+        .message.user {
             justify-content: flex-end;
         }
-        .chat-actions button {
-            background-color: #f44336;
-            margin-left: 10px;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 0.9em;
+        .message.bot {
+            justify-content: flex-start;
         }
-        .chat-actions button:hover {
-            background-color: #da190b;
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .message.user .message-bubble {
+            background-color: #007bff;
+            color: #fff;
+            border-bottom-right-radius: 5px; /* Aesthetic touch */
+        }
+        .message.bot .message-bubble {
+            background-color: #e2e6ea;
+            color: #333;
+            border-bottom-left-radius: 5px; /* Aesthetic touch */
+        }
+        #typing-indicator {
+            padding: 10px 20px;
+            font-style: italic;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            display: none; /* Hidden by default */
+            border-top: 1px solid #dee2e6;
+        }
+        .api-key-section, .chat-input-section {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        .api-key-section {
+            border-bottom: 1px solid #dee2e6;
+        }
+        #api-status {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .footer {
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh; /* Full viewport height on small screens */
+            }
+            #chat-messages {
+                max-height: calc(100vh - 240px); /* Adjust for smaller screens */
+            }
+            .message-bubble {
+                max-width: 90%; /* Larger bubbles on smaller screens */
+            }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">
-            Academic Grading Chatbot <span id="message-count">0 messages</span>
+        <header class="p-3 bg-primary text-white text-center">
+            <h1 class="h3 mb-0">Academic Grading AI Chatbot</h1>
+            <p class="mb-0">Powered by Google Gemini</p>
+        </header>
+
+        <!-- API Key Input Section -->
+        <div class="api-key-section d-flex flex-column flex-md-row align-items-center">
+            <label for="api-key-input" class="form-label mb-2 mb-md-0 me-md-2 text-nowrap">Gemini API Key:</label>
+            <input type="password" id="api-key-input" class="form-control me-md-2 mb-2 mb-md-0" placeholder="Enter your Google Gemini API key">
+            <button id="set-api-btn" class="btn btn-success flex-shrink-0">Set API Key</button>
+            <span id="api-status" class="ms-md-3 text-muted">API Key: Not Set</span>
         </div>
-        <div class="chat-messages" id="chat-messages">
-            <!-- Chat messages will be appended here -->
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Type your message..." maxlength="500">
-            <button id="send-btn">Send</button>
-            <div class="char-counter">
-                <span id="char-count">500</span> characters remaining
+
+        <!-- Chat Messages Display Area -->
+        <div id="chat-messages">
+            <!-- Initial bot message -->
+            <div class="message bot">
+                <div class="message-bubble">Hello! Please set your Gemini API key above to start chatting about academic grading.</div>
             </div>
         </div>
-        <div class="chat-actions">
-            <button id="clear-btn">Clear Chat</button>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="p-2 text-center text-muted">
+            AI is typing...
         </div>
+
+        <!-- Chat Input Section -->
+        <div class="chat-input-section d-flex p-3">
+            <input type="text" id="user-input" class="form-control me-2" placeholder="Ask about grading, feedback, rubrics, etc." disabled>
+            <button id="send-btn" class="btn btn-primary" disabled>Send</button>
+        </div>
+
+        <!-- Footer with License Information -->
+        <footer class="footer">
+            <p class="mb-0">&copy; 2024 Academic Grading AI Chatbot. All rights reserved.</p>
+            <p class="mb-0">
+                <a href="https://github.com/google/generative-ai-js" target="_blank" class="text-secondary text-decoration-none">Powered by Google Generative AI JS SDK</a> |
+                <a href="https://github.com/google/generative-ai-js/blob/main/LICENSE" target="_blank" class="text-secondary text-decoration-none">MIT License</a>
+            </p>
+        </footer>
     </div>
+
+    <!-- Google Generative AI JS SDK CDN (for generateContent API) -->
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.1.3/dist/index.min.js"></script>
+    <!-- Bootstrap JS (optional, for some Bootstrap components - not strictly needed for this simple app but good practice) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1bK5b0M2s3GvE5j5Q5F" crossorigin="anonymous"></script>
 
     <script>
         // MIT License
+        // This software is provided under the MIT License.
+        // For full details, see the LICENSE link in the footer or the official Google Generative AI JS SDK repository.
+        /*
+        MIT License
 
-        // Copyright (c) 2023 [Your Name / AI Developer Name]
+        Copyright (c) 2024 Academic AI Development Team
 
-        // Permission is hereby granted, free of charge, to any person obtaining a copy
-        // of this software and associated documentation files (the "Software"), to deal
-        // in the Software without restriction, including without limitation the rights
-        // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-        // copies of the Software, and to permit persons to whom the Software is
-        // furnished to do so, subject to the following conditions:
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
 
-        // The above copyright notice and this permission notice shall be included in all
-        // copies or substantial portions of the Software.
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
 
-        // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-        // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-        // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-        // SOFTWARE.
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        */
 
-        document.addEventListener("DOMContentLoaded", () => {
-            // DOM element references
-            const chatMessages = document.querySelector("#chat-messages");
-            const userInput = document.querySelector("#user-input");
-            const sendBtn = document.querySelector("#send-btn");
-            const clearBtn = document.querySelector("#clear-btn");
-            const messageCountSpan = document.querySelector("#message-count");
-            const charCountSpan = document.querySelector("#char-count");
+        // --- DOM Element References ---
+        const apiKeyInput = document.querySelector("#api-key-input");
+        const setApiBtn = document.querySelector("#set-api-btn");
+        const apiStatus = document.querySelector("#api-status");
+        const userInput = document.querySelector("#user-input");
+        const sendBtn = document.querySelector("#send-btn");
+        const chatMessages = document.querySelector("#chat-messages");
+        const typingIndicator = document.querySelector("#typing-indicator");
 
-            // Initialize chat history array
-            let chatHistory = [];
-            const MAX_CHARACTERS = 500; // Define max characters for input
+        // --- Global Variables ---
+        let geminiApiKey = null;
+        let generativeModel = null; // Will store the initialized GoogleGenerativeAI model instance
 
-            /**
-             * Formats a Date object into HH:MM string.
-             * @param {Date} date The date object to format.
-             * @returns {string} The formatted time string.
-             */
-            function formatTimestamp(date) {
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                return `${hours}:${minutes}`;
+        // --- Utility Functions ---
+
+        /**
+         * Appends a new message bubble to the chat display.
+         * @param {string} sender - The sender of the message ('user' or 'bot').
+         * @param {string} text - The content of the message.
+         */
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender); // Apply 'user' or 'bot' class for styling
+            const messageBubble = document.createElement("div");
+            messageBubble.classList.add("message-bubble");
+            messageBubble.innerHTML = text.replace(/\n/g, '<br>'); // Replace newlines with <br> for HTML display
+            messageDiv.appendChild(messageBubble);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Automatically scroll to the latest message
+        }
+
+        /**
+         * Updates the visual status of the API key.
+         * @param {boolean} isSet - True if the API key is set, false otherwise.
+         */
+        function updateApiStatus(isSet) {
+            if (isSet) {
+                apiStatus.textContent = "API Key: Set ✓";
+                apiStatus.classList.remove("text-muted", "text-danger");
+                apiStatus.classList.add("text-success");
+            } else {
+                apiStatus.textContent = "API Key: Not Set";
+                apiStatus.classList.remove("text-success", "text-danger");
+                apiStatus.classList.add("text-muted");
             }
+        }
 
-            /**
-             * Displays a message in the chat interface.
-             * @param {string} sender The sender of the message ('user' or 'bot').
-             * @param {string} messageText The content of the message.
-             * @param {string} timestamp The formatted timestamp (HH:MM).
-             */
-            function displayMessage(sender, messageText, timestamp) {
-                const messageDiv = document.createElement("div");
-                messageDiv.classList.add("message", `${sender}-message`);
-
-                const contentDiv = document.createElement("div");
-                contentDiv.classList.add("content");
-                contentDiv.textContent = messageText;
-
-                const timestampSpan = document.createElement("span");
-                timestampSpan.classList.add("timestamp");
-                timestampSpan.textContent = timestamp;
-
-                messageDiv.appendChild(contentDiv);
-                messageDiv.appendChild(timestampSpan);
-                chatMessages.appendChild(messageDiv);
-
-                // Scroll to the bottom of the chat messages
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+        /**
+         * Toggles the enabled/disabled state of the chat input field and send button.
+         * @param {boolean} enable - If true, enables the elements; otherwise, disables them.
+         */
+        function toggleChatInput(enable) {
+            userInput.disabled = !enable;
+            sendBtn.disabled = !enable;
+            if (enable) {
+                userInput.focus(); // Focus on input when enabled
             }
+        }
 
-            /**
-             * Updates the displayed total message count.
-             */
-            function updateMessageCounter() {
-                messageCountSpan.textContent = `${chatHistory.length} messages`;
+        /**
+         * Shows or hides the typing indicator.
+         * @param {boolean} show - If true, displays the indicator; otherwise, hides it.
+         */
+        function showTypingIndicator(show) {
+            typingIndicator.style.display = show ? "block" : "none";
+            if (show) {
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom to show indicator if it appears
             }
+        }
 
-            /**
-             * Saves the current chat history to localStorage.
-             */
-            function saveChatHistory() {
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-            }
+        // --- API Key Management Functions ---
 
-            /**
-             * Loads chat history from localStorage and displays it.
-             */
-            function loadChatHistory() {
-                const storedHistory = localStorage.getItem('chatHistory');
-                if (storedHistory) {
-                    chatHistory = JSON.parse(storedHistory);
-                    chatHistory.forEach(msg => {
-                        displayMessage(msg.sender, msg.text, msg.timestamp);
-                    });
-                    updateMessageCounter();
+        /**
+         * Attempts to load the API key from localStorage on page load.
+         * If found, it initializes the Gemini model and enables chat input.
+         */
+        function loadApiKey() {
+            const storedKey = localStorage.getItem("geminiApiKey");
+            if (storedKey) {
+                geminiApiKey = storedKey;
+                updateApiStatus(true);
+                toggleChatInput(true);
+                try {
+                    // Initialize the Google Generative AI model with the stored key
+                    // The SDK internally targets generativelanguage.googleapis.com
+                    generativeModel = new GoogleGenerativeAI(geminiApiKey).getGenerativeModel({ model: "gemini-pro" });
+                    console.log("Gemini model initialized from stored key.");
+                } catch (error) {
+                    console.error("Error initializing Gemini model with stored key:", error);
+                    geminiApiKey = null; // Invalidate key if initialization fails
+                    localStorage.removeItem("geminiApiKey"); // Remove potentially bad key
+                    updateApiStatus(false);
+                    toggleChatInput(false);
+                    addMessage("bot", "Error initializing Gemini with stored key. Please re-enter a valid API key.");
                 }
+            } else {
+                updateApiStatus(false);
+                toggleChatInput(false);
             }
+        }
 
-            /**
-             * Simulates a chatbot response based on user input.
-             * @param {string} userMessage The user's input message.
-             * @returns {string} The chatbot's response.
-             */
-            function getBotResponse(userMessage) {
-                const lowerCaseMessage = userMessage.toLowerCase();
-
-                if (lowerCaseMessage.includes("student's name") || lowerCaseMessage.includes("name of student")) {
-                    return "Please provide the student's full name for accurate record-keeping.";
-                } else if (lowerCaseMessage.includes("how did they perform") || lowerCaseMessage.includes("performance review")) {
-                    return "Performance can be assessed based on several criteria including engagement, quality of submissions, understanding of concepts, and participation. Would you like to delve into specific areas?";
-                } else if (lowerCaseMessage.includes("what grade should they get") || lowerCaseMessage.includes("grade recommendation")) {
-                    return "Based on the comprehensive assessment, a grade recommendation of A- appears appropriate for this student, reflecting their strong grasp of the material and consistent effort.";
-                } else {
-                    return "I'm sorry, I can only assist with academic grading inquiries. Please ask about student names, performance, or grade recommendations.";
+        /**
+         * Event handler for the 'Set API Key' button.
+         * Stores the new API key in localStorage and initializes the Gemini model.
+         */
+        setApiBtn.addEventListener("click", () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem("geminiApiKey", key); // Store the key in localStorage
+                geminiApiKey = key;
+                updateApiStatus(true);
+                toggleChatInput(true);
+                apiKeyInput.value = ""; // Clear the input field after setting
+                addMessage("bot", "API Key set successfully! You can now ask questions about academic grading.");
+                try {
+                    // Initialize the Google Generative AI model with the new key
+                    generativeModel = new GoogleGenerativeAI(geminiApiKey).getGenerativeModel({ model: "gemini-pro" });
+                    console.log("Gemini model initialized from input.");
+                } catch (error) {
+                    console.error("Error initializing Gemini model with new key:", error);
+                    geminiApiKey = null; // Invalidate key if initialization fails
+                    localStorage.removeItem("geminiApiKey"); // Remove potentially bad key
+                    updateApiStatus(false);
+                    toggleChatInput(false);
+                    addMessage("bot", "Failed to initialize Gemini model with this key. Please check its validity.");
                 }
+            } else {
+                alert("Please enter a valid Google Gemini API key.");
+                updateApiStatus(false);
+                toggleChatInput(false);
             }
-
-            /**
-             * Handles sending a message from the user.
-             */
-            function sendMessage() {
-                const userMessage = userInput.value.trim();
-                if (userMessage === "") {
-                    return; // Don't send empty messages
-                }
-
-                const currentTimestamp = formatTimestamp(new Date());
-
-                // Display user message
-                displayMessage("user", userMessage, currentTimestamp);
-                chatHistory.push({ sender: "user", text: userMessage, timestamp: currentTimestamp });
-
-                // Simulate bot response
-                const botResponseText = getBotResponse(userMessage);
-                displayMessage("bot", botResponseText, currentTimestamp); // Bot response also gets current time
-                chatHistory.push({ sender: "bot", text: botResponseText, timestamp: currentTimestamp });
-
-                // Persist history and update counter
-                saveChatHistory();
-                updateMessageCounter();
-
-                // Clear input and reset character counter
-                userInput.value = "";
-                updateCharCounter();
-            }
-
-            /**
-             * Clears all messages from the chat interface and localStorage.
-             */
-            function clearChat() {
-                if (confirm("Are you sure you want to clear the entire chat history? This action cannot be undone.")) {
-                    chatMessages.innerHTML = ""; // Clear DOM
-                    chatHistory = []; // Clear array
-                    localStorage.removeItem('chatHistory'); // Clear localStorage
-                    updateMessageCounter(); // Update message count
-                }
-            }
-
-            /**
-             * Updates the character counter display.
-             */
-            function updateCharCounter() {
-                const remaining = MAX_CHARACTERS - userInput.value.length;
-                charCountSpan.textContent = remaining;
-            }
-
-            // Event Listeners
-            sendBtn.addEventListener("click", sendMessage);
-            userInput.addEventListener("keypress", (event) => {
-                if (event.key === "Enter") {
-                    sendMessage();
-                }
-            });
-            clearBtn.addEventListener("click", clearChat);
-            userInput.addEventListener("input", updateCharCounter); // Update on every input change
-
-            // Initial setup on page load
-            loadChatHistory(); // Load previous conversation
-            updateCharCounter(); // Initialize character counter
         });
+
+        // --- Chat Interaction Functions ---
+
+        /**
+         * Sends the user's message to the Gemini API and handles the response.
+         */
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return; // Do nothing if the input is empty
+
+            addMessage("user", message); // Display user's message
+            userInput.value = ""; // Clear the input field
+            showTypingIndicator(true); // Show the typing indicator
+            toggleChatInput(false); // Disable input while waiting for response
+
+            if (!geminiApiKey || !generativeModel) {
+                addMessage("bot", "Error: Gemini API key not set or model not initialized. Please set your API key.");
+                showTypingIndicator(false);
+                toggleChatInput(true);
+                return;
+            }
+
+            try {
+                // Call the generateContent method of the Gemini model
+                const result = await generativeModel.generateContent(message);
+                const response = await result.response;
+                const text = response.text(); // Extract the text content from the AI's response
+                addMessage("bot", text); // Display the AI's response
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                addMessage("bot", `Error: Failed to get response from AI. Please try again. (Details: ${error.message || "Unknown error"})`);
+            } finally {
+                showTypingIndicator(false); // Hide the typing indicator
+                toggleChatInput(true); // Re-enable chat input
+            }
+        }
+
+        // --- Event Listeners for Chat Input ---
+
+        // Send message on button click
+        sendBtn.addEventListener("click", sendMessage);
+
+        // Send message on Enter key press in the input field
+        userInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter" && !userInput.disabled) {
+                sendMessage();
+            }
+        });
+
+        // --- Initialize on Page Load ---
+        document.addEventListener("DOMContentLoaded", loadApiKey);
+
     </script>
 </body>
 </html>
