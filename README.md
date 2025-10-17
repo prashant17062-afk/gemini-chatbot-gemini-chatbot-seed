@@ -1,58 +1,70 @@
-# Academic Grading AI Chatbot powered by Google Gemini
+AI Chatbot for Academic Grading
 
-## Summary
-This project presents an interactive AI chatbot specifically designed to assist with academic grading scenarios. It integrates with the Google Gemini API to offer intelligent responses to queries related to rubrics, assignment feedback, assessment criteria, and general educational grading practices. The application features a user-friendly and mobile-responsive interface styled with Bootstrap, robust API key management (stored in local storage), real-time chat message display, a typing indicator, and comprehensive error handling for API interactions.
+Summary
+This project delivers an advanced AI chatbot designed to assist with academic grading. Building upon a foundational chat interface, this iteration introduces robust features for enhanced user control, conversation management, and improved user experience. It provides a client-side interface for interacting with an AI model (simulated in this demo) to generate feedback, analyze rubrics, and assist with various grading tasks. The application emphasizes usability with a collapsible settings panel, persistent configurations, and comprehensive chat utility functions.
 
-## Setup
+Setup
+1.  Save the provided `index.html` content into a file named `index.html`.
+2.  Open `index.html` in a modern web browser (e.g., Chrome, Firefox, Edge).
+3.  The application will load directly in your browser.
 
-To set up and run this chatbot, follow these simple steps:
+Usage
+Upon opening the `index.html` file, you will be presented with the AI Chatbot interface:
 
-1.  **Save the file:** Copy the entire content of `index.html` into a new file named `index.html` on your local machine.
-2.  **Open in Browser:** Navigate to the saved `index.html` file and open it using any modern web browser (e.g., Google Chrome, Mozilla Firefox, Microsoft Edge). No server environment or build tools are required.
-3.  **Obtain a Google Gemini API Key:**
-    *   Visit the [Google AI Studio](https://aistudio.google.com/) or the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
-    *   Create or select an existing Google Cloud project.
-    *   Ensure the "Generative Language API" is enabled for your project.
-    *   Generate a new API key. It is crucial to keep this key confidential and never embed it directly into publicly accessible code.
+*   **Chat Interface:** Type your queries into the text area at the bottom and click "Send" or press Enter (Shift+Enter for a new line).
+*   **Settings Panel:**
+    *   Click the "Toggle Settings" button to expand or collapse the panel.
+    *   **OpenAI API Key:** Enter your personal OpenAI API key here. For full AI functionality, this field should contain a valid key. The key is persisted in your browser's local storage.
+    *   **Show API Key:** Check this box to reveal the API key you've entered, uncheck to hide it.
+    *   **Temperature Slider:** Adjust this slider (0.0 to 1.0) to control the AI's response creativity. Lower values result in more focused and deterministic responses, while higher values yield more varied and creative outputs.
+    *   **Max Tokens:** Set the maximum length for the AI's responses (default is 1000 tokens).
+    *   All settings (API Key, Temperature, Max Tokens) are automatically saved to your browser's `localStorage` under 'chatSettings' and will persist across sessions.
+*   **Clear Chat:** Click the "Clear Chat" button to remove all messages from the current conversation. A confirmation prompt will appear to prevent accidental deletion.
+*   **Export Chat:** Click the "Export Chat" button to download your entire conversation history as a JSON file, including timestamps and sender roles.
+*   **Message Timestamps:** Each message (both user and bot) is accompanied by a timestamp in 'HH:MM AM/PM' format.
+*   **Message Counter:** The "Messages: X" display in the "Chat Statistics" panel keeps track of the total number of messages in the conversation.
+*   **Character Counter:** A character counter is displayed below the input area, showing the current character count and the maximum limit (2000 characters) for your message.
+*   **Copy Bot Message:** Each message from the bot includes a "Copy" button. Clicking this button will copy the bot's response text to your clipboard.
 
-## Usage
+Main Code Logic
 
-1.  **Enter API Key:** When the application loads, the chat input area will be disabled. Locate the "Gemini API Key" input field (#api-key-input) at the top of the page. Paste your obtained Gemini API key into this field.
-2.  **Set API Key:** Click the 'Set API Key' button (#set-api-btn). The API status indicator (#api-status) will update to 'API Key: Set ✓' (in green), and the main chat input field (#user-input) and send button (#send-btn) will become active. Your API key will be securely stored in your browser's `localStorage` for future sessions, meaning you won't need to re-enter it every time you open the page.
-3.  **Start Chatting:** Type your academic grading-related questions or prompts into the now-enabled chat input field (#user-input) and press the Enter key or click the 'Send' button.
-4.  **Receive AI Responses:** While the AI processes your request, a 'AI is typing...' indicator (#typing-indicator) will be visible. Once the response is generated, it will appear in the chat messages area (#chat-messages) with distinct styling for bot messages.
-5.  **Error Handling:** In case of an invalid API key, network issues, or other problems during the API call, an informative error message will be displayed in the chat, guiding you on potential next steps.
+The application is built as a single-page HTML file (`index.html`) using HTML for structure, CSS for styling, and JavaScript for all interactive logic.
 
-## Main Code Logic
+1.  **HTML Structure:**
+    *   The `index.html` defines a clear layout with a header, a main container split into a chat area and a control panel, and a footer.
+    *   The chat area includes `#chat-history` (for messages) and `#input-area` (for user input and counters).
+    *   The `#control-panel` houses the toggle for settings, chat management buttons, and chat statistics.
+    *   The `#settings-panel` is a collapsible `div` containing API key input, temperature slider, and max tokens input.
 
-The primary functionality of this chatbot is encapsulated within the `<script>` tag of the `index.html` file.
+2.  **CSS Styling:**
+    *   Modern CSS (`flexbox` for layout) is used to create a responsive and visually appealing interface.
+    *   Clear visual distinctions are made between user and bot messages.
+    *   The `#settings-panel` utilizes `max-height` and `opacity` transitions for a smooth collapse/expand animation.
+    *   Basic styling for inputs, buttons, and counters ensures readability and usability.
 
-*   **DOM Element Caching:** At the start of the script, references to all interactive HTML elements (inputs, buttons, display areas) are obtained using `document.querySelector` to optimize subsequent DOM manipulations.
-*   **API Key Management (`localStorage`):**
-    *   The `localStorage` API is utilized to persist the Gemini API key under the key `'geminiApiKey'`. This allows the key to be saved across browser sessions.
-    *   The `loadApiKey()` function executes on `DOMContentLoaded`, checking for a previously stored key. If found, it initializes the `GoogleGenerativeAI` model and enables the chat interface.
-    *   The `setApiBtn`'s event listener handles storing the API key entered by the user, updating the UI status (`#api-status`), clearing the input field, and initializing the `GoogleGenerativeAI` model. Robust error handling is included for model initialization.
-*   **Chat Message Display (`addMessage`):**
-    *   The `addMessage(sender, text)` utility function is responsible for dynamically creating new chat message bubbles. It applies specific CSS classes (`user` or `bot`) to differentiate the sender and ensure messages are automatically scrolled into view. Newlines in messages are converted to HTML `<br>` tags for proper rendering.
-*   **Gemini API Interaction (`sendMessage`):**
-    *   The `sendMessage()` asynchronous function orchestrates the communication with the Google Gemini API.
-    *   It captures the user's input, displays it in the chat, clears the input field, and temporarily disables user input while showing a `#typing-indicator`.
-    *   It then uses the `generativeModel.generateContent(message)` method (from the `GoogleGenerativeAI` SDK) to send the prompt to the AI and await its response.
-    *   The AI's textual response is extracted and displayed in the chat.
-*   **Error Handling:**
-    *   `try-catch` blocks are strategically placed around API calls within `loadApiKey()`, `setApiBtn`'s listener, and `sendMessage()` to gracefully manage and display errors directly in the chat interface, providing feedback to the user without crashing the application.
-*   **UI State Management:**
-    *   Helper functions like `updateApiStatus()`, `toggleChatInput()`, and `showTypingIndicator()` manage the interactive elements' visibility and enabled states, ensuring a responsive and intuitive user experience.
-*   **Mobile Responsiveness:** The layout is primarily managed using Bootstrap's flexbox and spacing utilities (`d-flex`, `flex-column`, `flex-md-row`, `mb-2 mb-md-0`, etc.) combined with custom CSS media queries to adapt gracefully to various screen sizes.
+3.  **JavaScript Core:**
+    *   **DOM Manipulation:** All interactive elements are selected using `document.getElementById` and `document.querySelector`.
+    *   **State Management:**
+        *   `conversationHistory`: An array of objects, each representing a message with `role`, `content`, and `timestamp`, to maintain the chat state.
+        *   `chatSettings`: An object (`apiKey`, `temperature`, `maxTokens`) stores chatbot configuration.
+    *   **`localStorage` for Persistence:**
+        *   `loadSettings()`: Retrieves `chatSettings` from `localStorage` on page load and populates the UI elements.
+        *   `saveSettings()`: Persists `chatSettings` to `localStorage` whenever a setting is changed. This ensures user preferences are retained across browser sessions.
+    *   **Dynamic Message Rendering (`appendMessage`):**
+        *   Creates `div` elements for each message, applying appropriate CSS classes (`user` or `bot`).
+        *   Generates and attaches a timestamp (`getCurrentTimestamp()`) to each message.
+        *   For bot messages, a "Copy" button is dynamically added, utilizing `navigator.clipboard.writeText` for clipboard functionality.
+    *   **Chat Interaction:**
+        *   `sendMessage()`: Handles user input, appends the user message, clears the input, and then calls `getBotResponse()`.
+        *   `getBotResponse()`: (Placeholder) This function simulates an AI response. In a real application, it would perform a `fetch` request to an AI API (e.g., OpenAI's Chat Completions endpoint), passing the `apiKey`, `temperature`, `maxTokens`, and `conversationHistory` for contextual replies. Error handling for API calls is included.
+    *   **Utility Features:**
+        *   `updateCounters()`: Keeps the `#message-count` and `#char-count` displays current.
+        *   **Clear Chat:** The `#clear-btn` uses `confirm()` for user verification before resetting `chatHistory` and `conversationHistory`.
+        *   **Export Chat:** The `#export-btn` serializes `conversationHistory` to a JSON string, creates a `Blob`, and then triggers a download using a temporary `<a>` element and `URL.createObjectURL()`.
+    *   **Event Handling:** Event listeners are set up for input changes, button clicks, and keypresses to manage all interactive features. `userInput` includes logic for auto-resizing the textarea.
 
-## License
+License
+This project is released under the MIT License. See the license text embedded in the `index.html` file for full details.
 
-This project is licensed under the MIT License. A copy of the license is explicitly included as comments in the JavaScript section of the `index.html` file and referenced in the footer.
-
-## Contact
-
-For any questions, feedback, or suggestions regarding this Academic Grading AI Chatbot, please feel free to reach out:
-
-*   **Developer:** AI Web Developer
-*   **Email:** aid@example.com
-*   **GitHub:** [https://github.com/your-ai-dev-profile](https://github.com/your-ai-dev-profile) (Placeholder)
+Contact
+For any questions or feedback, please contact [Your Name/Email or Placeholder].
